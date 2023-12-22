@@ -1,0 +1,82 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
+model User {
+  id             String     @id @default(uuid())
+  department     Department @relation(fields: [departmentName], references: [name])
+  departmentName String     @map("department_name")
+  email          String     @unique
+  name           String
+  password       String
+  role           Role       @default(JEFE)
+  createdAt      DateTime   @default(now()) @map("created_at")
+  updatedAt      DateTime   @updatedAt @map("updated_at")
+  request        Request[]
+}
+
+model Request {
+  id              String      @id @default(uuid())
+  user            User        @relation(fields: [userEmail], references: [email])
+  requestType     RequestType @relation(fields: [requestTypeName], references: [name])
+  reason          Reason      @relation(fields: [reasonName], references: [name])
+  privileges      Privilege[]
+  contactEmail    String      @map("contact_email")
+  status           String      @default("pendiente")
+  userEmail       String      @map("user_email")
+  requestTypeName String      @map("request_type_name")
+  reasonName      String      @map("reason_name")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+}
+
+model Reason {
+  id      String    @id @default(uuid())
+  name    String    @unique
+  Request Request[]
+}
+
+model RequestType {
+  id      String    @id @default(uuid())
+  name    String    @unique
+  Request Request[]
+}
+
+model Department {
+  id             String     @id @default(uuid())
+  management     Management @relation(fields: [managementName], references: [name])
+  managementName String     @map("management_id")
+  name           String     @unique
+  user           User[]
+}
+
+model Management {
+  id         String       @id @default(uuid())
+  name       String       @unique
+  Department Department[]
+}
+
+model Privilege {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  Request   Request? @relation(fields: [requestId], references: [id])
+  requestId String?
+}
+
+enum Role {
+  ADMIN
+  JEFE
+  DIRECTOR
+}

@@ -1,0 +1,81 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table User {
+  id String [pk]
+  department Department [not null]
+  departmentName String [not null]
+  email String [unique, not null]
+  name String [not null]
+  password String [not null]
+  role Role [not null, default: 'USER']
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  request Request [not null]
+}
+
+Table Request {
+  id String [pk]
+  user User [not null]
+  requestType RequestType [not null]
+  reason Reason [not null]
+  privileges Privilege [not null]
+  contactEmail String [not null]
+  state String [not null, default: 'pendiente']
+  userEmail String [not null]
+  requestTypeName String [not null]
+  reasonName String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table Reason {
+  id String [pk]
+  name String [unique, not null]
+  Request Request [not null]
+}
+
+Table RequestType {
+  id String [pk]
+  name String [unique, not null]
+  Request Request [not null]
+}
+
+Table Department {
+  id String [pk]
+  management Management [not null]
+  managementName String [not null]
+  name String [unique, not null]
+  user User [not null]
+}
+
+Table Management {
+  id String [pk]
+  name String [unique, not null]
+  Department Department [not null]
+}
+
+Table Privilege {
+  id String [pk]
+  name String [unique, not null]
+  Request Request
+  requestId String
+}
+
+Enum Role {
+  ADMIN
+  USER
+}
+
+Ref: User.departmentName > Department.name
+
+Ref: Request.userEmail > User.email
+
+Ref: Request.requestTypeName > RequestType.name
+
+Ref: Request.reasonName > Reason.name
+
+Ref: Department.managementName > Management.name
+
+Ref: Privilege.requestId > Request.id
